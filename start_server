@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# Start up the MixtureMind server
+
+iex --sname mixture_mind --cookie mastermind-elixir -S mix

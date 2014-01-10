@@ -8,7 +8,7 @@ defmodule GameTest do
   end
 
   test "gets color code of proper length" do
-    assert length(new_code 5) == 5
+    assert String.length(new_code 5) == 5
   end
 
   test "instructions list colors" do

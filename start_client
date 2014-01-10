@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# Start a MixtureMind client, connecting to the server
+
+# Node.connect :"mixture_mind@bulleit"
+
+iex --sname `hostname -s` --cookie mastermind-elixir -S mix

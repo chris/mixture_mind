@@ -1,11 +1,12 @@
 defmodule MixtureMind.Server do
   use GenServer.Behaviour
+  alias MixtureMind.Game
 
-  @name :mixture_mind
+  @name { :global, :mixture_mind }
 
 
   def start_link do
-    :gen_server.start_link({ :local, @name }, __MODULE__, [], [])
+    :gen_server.start_link(@name, __MODULE__, [], [])
   end
 
   @doc "Start a new game for the calling client."
@@ -21,26 +22,25 @@ defmodule MixtureMind.Server do
     :gen_server.call @name, { :guess, guess }
   end
 
-  def init do
+  def init(_start_args) do
     { :ok, HashDict.new }
   end
 
-  def handle_call({ :new_game, num_slots }, _from, clients) do
-    { :reply, "Ready for your guess.", Dict.put(clients, _from, Game.new_code(num_slots)) }
+  def handle_call({ :new_game, num_slots }, { client_pid, _ }, clients) do
+    IO.puts "Initiating new game for client #{inspect client_pid}"
+    { :reply, "Ready for your guess.", Dict.put(clients, client_pid, Game.new_code(num_slots)) }
   end
 
-  def handle_call({ :guess, the_guess }, _from, clients) do
-    import MixtureMind.Game, only: [guess: 2]
-
-    case Dict.get(clients, _from, :unknown) do
+  def handle_call({ :guess, the_guess }, { client_pid, _ }, clients) do
+    IO.puts "looking up client #{inspect client_pid} in clients:"
+    IO.puts "#{inspect clients}"
+    case Dict.get(clients, client_pid, :unknown) do
       :unknown ->
-        { :reply, "You haven't started a game.", clients }
+        { :reply, "Please start a new game in order to play.", clients }
       code ->
-        case guess(code, the_guess) do
-          :win ->
-            { :reply, "You guessed the code! I've started a new game for you.", Dict.put(clients, _from, Game.new_code) }
-          _ ->
-            { :reply, guess(code, the_guess), clients }
+        case Game.guess(code, the_guess) do
+          :win -> { :reply, "You guessed the code!", Dict.drop(clients, [client_pid]) }
+          _    -> { :reply, Game.guess(code, the_guess), clients }
         end
     end
   end

@@ -4,11 +4,11 @@ defmodule MixtureMind.Game do
   @partial "-"
   @nomatch " "
 
-  @doc "Get a new code with `slots` items"
-  def new_code(slots) do
+  @doc "Get a new code with `slots` items. Returns a string representing the code."
+  def new_code(slots // 4) do
     :random.seed(:erlang.now)
     color_vals = Dict.values(@colors)
-    Enum.map(1..slots, fn(_) -> Enum.shuffle(color_vals) |> Enum.first end)
+    Enum.map(1..slots, fn(_) -> Enum.shuffle(color_vals) |> Enum.first end) |> Enum.join
   end
 
   def instructions do
@@ -40,9 +40,7 @@ defmodule MixtureMind.Game do
     guess_list = String.to_char_list!(a_guess)
     code_list = String.to_char_list!(code)
 
-    exact_matches(guess_list, code_list) |>
-    partial_matches(guess_list, code_list) |>
-    Enum.join
+    exact_matches(guess_list, code_list) |> partial_matches(guess_list, code_list) |> Enum.join
   end
 
   @doc "Find the exactly correct elements of a guess in a code."
