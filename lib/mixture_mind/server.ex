@@ -28,7 +28,7 @@ defmodule MixtureMind.Server do
 
   def handle_call({ :new_game, num_slots }, { client_pid, _ }, clients) do
     IO.puts "Initiating new game for client #{inspect client_pid}"
-    { :reply, "Ready for your guess.", Dict.put(clients, client_pid, Game.new_code(num_slots)) }
+    { :reply, Game.instructions, Dict.put(clients, client_pid, Game.new_code(num_slots)) }
   end
 
   def handle_call({ :guess, the_guess }, { client_pid, _ }, clients) do
